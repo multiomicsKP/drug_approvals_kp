@@ -72,20 +72,20 @@ def load_data(data_folder):
             )
             
             # approval NDAs
-            edge_attributes.append(
-                {
-                    "attribute_type_id": "approvals",
-                    "value": line[9],
-                 }
-            )
+            #edge_attributes.append(
+            #    {
+            #        "attribute_type_id": "approvals",
+            #        "value": line[9],
+            #     }
+            #)
             
             # supporting SPLs
-            edge_attributes.append(
-                {
-                    "attribute_type_id": "supporting SPLs",
-                    "value": line[11],
-                 }
-            )
+            #edge_attributes.append(
+            #    {
+            #        "attribute_type_id": "supporting SPLs",
+            #        "value": line[11],
+            #     }
+            #)
             
             # sources
             edge_sources = [
