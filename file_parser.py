@@ -38,7 +38,7 @@ def load_data(data_folder):
             prefix = line[2].split(':')[0].replace(".","_")
             object_ = {
                 "id": line[2],
-                prefix: line[2],
+                prefix.lower(): line[2],
                 "name": id_name_mapping[line[2]],
                 "type": id_type_mapping[line[2]]
             }
