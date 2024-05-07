@@ -2,7 +2,7 @@ import csv
 import os
 import json
 
-attribute_source = "infores:biothings-multiomics-drugapproval"
+attribute_source = "infores:biothings-multiomics-drugapprovals"
 attribute_data_source = "infores:isb-wellness"
 faers = "infores:faers"
 dailymed = "infores:dailymed"
