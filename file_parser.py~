@@ -65,8 +65,8 @@ def load_data(data_folder):
             # approval status
             edge_attributes.append(
                 {
-                    "attribute_type_id": "clinical_approval_status",
-                    "value": "approved_for_condition" if line[1]=="treats" else "not_approved_for_condition",
+                    "attribute_type_id": "approval_status",
+                    "value": True if line[1]=="treats" else False,
                  }
             )
             
