@@ -102,7 +102,6 @@ def load_data(data_folder):
                 }
             ]
 
-
             association = {
                 "label": line[1],
                 "attributes": edge_attributes,
