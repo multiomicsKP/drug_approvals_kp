@@ -6,10 +6,11 @@ attribute_source = "infores:biothings-multiomics-drugapprovals"
 attribute_data_source = "infores:isb-wellness"
 faers = "infores:faers"
 dailymed = "infores:dailymed"
+kgInfoUrl = "https://db.systemsbiology.net/gestalt/cgi-pub/KGinfo.pl?id="
 
 def load_data(data_folder):
-    edges_file_path = os.path.join(data_folder, "approvals_kg_edges_v0.1.tsv")
-    nodes_file_path = os.path.join(data_folder, "approvals_kg_nodes_v0.1.tsv")
+    edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.1.tsv")
+    nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.1.tsv")
     nodes_f = open(nodes_file_path)
     edges_f = open(edges_file_path)
     nodes_data = csv.reader(nodes_f, delimiter="\t")
@@ -90,7 +91,8 @@ def load_data(data_folder):
             edge_sources = [
                 {
                     "resource_id": attribute_source,
-                    "resource_role": "primary_knowledge_source"
+                    "resource_role": "primary_knowledge_source",
+                    "source_record_urls": [ kgInfoUrl + line[12] ]
                 },
                 {
                     "resource_id": dailymed,
