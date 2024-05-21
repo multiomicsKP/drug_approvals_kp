@@ -89,15 +89,15 @@ def load_data(data_folder):
             edge_sources = [
                 {
                     "resource_id": attribute_source,
-                    "resource_role": "primary_knowledge_source",
+                    "resource_role": "aggregator_knowledge_source",
                     "source_record_urls": [ kgInfoUrl + line['rowId'] ]
                 },
                 {
-                    "resource_id": dailymed,
-                    "resource_role": "supporting_data_source"
+                    "resource_id": dailymed if pred == 'treats' else faers,
+                    "resource_role": "primary_knowledge_source"
                 },
                 {
-                    "resource_id": faers,
+                    "resource_id": faers if pred == 'treats' else dailymed,
                     "resource_role": "supporting_data_source"
                 }
             ]
