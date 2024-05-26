@@ -1,4 +1,4 @@
-import csv
+import pandas as pd
 import os
 import json
 
@@ -9,40 +9,38 @@ dailymed = "infores:dailymed"
 kgInfoUrl = "https://db.systemsbiology.net/gestalt/cgi-pub/KGinfo.pl?id="
 
 def load_data(data_folder):
-    edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.1.tsv")
-    nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.1.tsv")
-    nodes_f = open(nodes_file_path)
-    edges_f = open(edges_file_path)
-    nodes_data = csv.reader(nodes_f, delimiter="\t")
-    edges_data = csv.reader(edges_f, delimiter="\t")
-    
-    headers = next(nodes_data)
+    edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.2.tsv")
+    nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.2.tsv")
+
+    nodes_data = pd.read_csv(nodes_file_path, sep='\t')
     id_name_mapping = {}
     id_type_mapping = {}
-    for line in nodes_data:
-        id_name_mapping[line[0]] = line[1]
-        id_type_mapping[line[0]] = line[2]
+    for index,row in nodes_data.iterrows():
+        id_name_mapping[row["id"]] = row["name"]
+        id_type_mapping[row["id"]] = row["category"]
 
-    headers = next(edges_data)
-    for line in edges_data:
-        if line[0] and line[1] and line[0].split(':')[0] and line[2].split(':')[0]:
+    edges_data = pd.read_csv(edges_file_path, sep='\t')
+    for index,line in edges_data.iterrows():
+        subj = line['subject']
+        pred = line['predicate']
+        obj  = line['object']
+        if subj and pred and subj.split(':')[0] and obj.split(':')[0]:
 
-            prefix = line[0].split(':')[0].replace(".","_")
+            prefix = subj.split(':')[0].replace(".","_")
             subject = {
-                "id": line[0],
-                prefix: line[0],
-                "name": id_name_mapping[line[0]],
-                "type": id_type_mapping[line[0]]
+                "id": subj,
+                prefix.lower(): subj,
+                "name": id_name_mapping[subj],
+                "type": id_type_mapping[subj]
             }
             
-            prefix = line[2].split(':')[0].replace(".","_")
+            prefix = obj.split(':')[0].replace(".","_")
             object_ = {
-                "id": line[2],
-                prefix.lower(): line[2],
-                "name": id_name_mapping[line[2]],
-                "type": id_type_mapping[line[2]]
+                "id": obj,
+                prefix.lower(): obj,
+                "name": id_name_mapping[obj],
+                "type": id_type_mapping[obj]
             }
-
 
             # properties for predicate/association
             edge_attributes = []
@@ -51,7 +49,7 @@ def load_data(data_folder):
             edge_attributes.append(
                 {
                     "attribute_type_id": "biolink:knowledge_level",
-                    "value": line[7],
+                    "value": line['knowledge_level'],
                 }
             )
 
@@ -59,7 +57,7 @@ def load_data(data_folder):
             edge_attributes.append(
                 {
                     "attribute_type_id": "biolink:agent_type",
-                     "value": line[8],
+                     "value": line['agent_type'],
                 }
             )
             
@@ -67,7 +65,7 @@ def load_data(data_folder):
             edge_attributes.append(
                 {
                     "attribute_type_id": "clinical_approval_status",
-                    "value": "approved_for_condition" if line[1]=="treats" else "not_approved_for_condition",
+                    "value": "approved_for_condition" if pred=="treats" else "not_approved_for_condition",
                  }
             )
             
@@ -75,7 +73,7 @@ def load_data(data_folder):
             #edge_attributes.append(
             #    {
             #        "attribute_type_id": "approvals",
-            #        "value": line[9],
+            #        "value": line['approval'],
             #     }
             #)
             
@@ -83,7 +81,7 @@ def load_data(data_folder):
             #edge_attributes.append(
             #    {
             #        "attribute_type_id": "supporting SPLs",
-            #        "value": line[11],
+            #        "value": line['supporting_spls'],
             #     }
             #)
             
@@ -91,28 +89,28 @@ def load_data(data_folder):
             edge_sources = [
                 {
                     "resource_id": attribute_source,
-                    "resource_role": "primary_knowledge_source",
-                    "source_record_urls": [ kgInfoUrl + line[12] ]
+                    "resource_role": "aggregator_knowledge_source",
+                    "source_record_urls": [ kgInfoUrl + line['id'] ]
                 },
                 {
-                    "resource_id": dailymed,
-                    "resource_role": "supporting_data_source"
+                    "resource_id": dailymed if pred == 'treats' else faers,
+                    "resource_role": "primary_knowledge_source"
                 },
                 {
-                    "resource_id": faers,
+                    "resource_id": faers if pred == 'treats' else dailymed,
                     "resource_role": "supporting_data_source"
                 }
             ]
 
             association = {
-                "label": line[1],
+                "label": pred,
                 "attributes": edge_attributes,
                 "sources": edge_sources
             }
 
             # Yield subject, predicate, and object properties
             data = {
-                "_id": line[12],
+                "_id": line['id'],
                 "subject": subject,
                 "association": association,
                 "object": object_
@@ -136,7 +134,6 @@ def main():
         else:
             print(json.dumps(entry, sort_keys=True, indent=2))
             done = done + 1
-    #print(done)
 
 if __name__ == '__main__':
     main()
