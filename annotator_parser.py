@@ -95,9 +95,10 @@ def load_data(data_folder):
     while 1:
         try: subj, entry = next(edges)
         except: break
-        if subj not in output:
-            output.update({subj: []})
-        output[subj].append(entry)
+        if subj in output:
+            output[subj].append(entry)
+        else:
+            output.update({subj: [entry]})
     for key in output:
         final.append({"_id": key, "clinical_approval": output[key]})
     for entry in final:
