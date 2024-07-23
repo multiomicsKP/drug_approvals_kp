@@ -8,7 +8,7 @@ faers = "infores:faers"
 dailymed = "infores:dailymed"
 kgInfoUrl = "https://db.systemsbiology.net/gestalt/cgi-pub/KGinfo.pl?id="
 
-def load_data(data_folder):
+def load_content(data_folder):
     edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.2.tsv")
     nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.2.tsv")
 
@@ -37,7 +37,7 @@ def load_data(data_folder):
 
             # approval status
             status = ""
-
+            
             # sources
             edge_sources = []
             if pred == 'treats':
@@ -82,34 +82,38 @@ def load_data(data_folder):
                 "edge_id": line['id'],
                 "sources": edge_sources
             }
-
+            
             yield subj, data
 
         else:
             print(f"Cannot find prefix for {line} !")
 
-
-
-def main():
-    testing = False #True
-    done = 0
+def load_data(data_folder):
     output = {}
     final = []
-    gen = load_data('test')
-    while not testing or done < 10:
-        try: subj, entry = next(gen)
-        except:
-            break
+    edges = load_content(data_folder)
+    while 1:
+        try: subj, entry = next(edges)
+        except: break
         else:
             try:
                 output[subj].append(entry)
             except:
                 output.update({subj: []})
                 output[subj].append(entry)
-            done = done + 1
     for key in output:
         final.append({"_id": key, "clinical_approval": output[key]})
-    print(json.dumps(final, indent=2))
+    for entry in final:
+        yield entry
+
+def main():
+    gen = load_data('test')
+    entry = next(gen)
+    while 1:
+        try:
+            entry = next(gen)
+            print(json.dumps(entry, sort_keys=True, indent=2))
+        except: break
 
 if __name__ == '__main__':
     main()
