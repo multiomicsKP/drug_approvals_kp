@@ -95,12 +95,9 @@ def load_data(data_folder):
     while 1:
         try: subj, entry = next(edges)
         except: break
-        else:
-            try:
-                output[subj].append(entry)
-            except:
-                output.update({subj: []})
-                output[subj].append(entry)
+        try: output[subj]
+        except: output.update({subj: []})
+        output[subj].append(entry)
     for key in output:
         final.append({"_id": key, "clinical_approval": output[key]})
     for entry in final:
@@ -109,10 +106,9 @@ def load_data(data_folder):
 def main():
     gen = load_data('test')
     while 1:
-        try:
-            entry = next(gen)
-            print(json.dumps(entry, sort_keys=True, indent=2))
+        try: entry = next(gen)
         except: break
+        print(json.dumps(entry, sort_keys=True, indent=2))
 
 if __name__ == '__main__':
     main()
