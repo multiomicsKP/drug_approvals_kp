@@ -108,7 +108,6 @@ def load_data(data_folder):
 
 def main():
     gen = load_data('test')
-    entry = next(gen)
     while 1:
         try:
             entry = next(gen)
