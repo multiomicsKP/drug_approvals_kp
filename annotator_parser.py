@@ -25,7 +25,7 @@ def load_content(data_folder):
         pred = line['predicate']
         obj  = line['object']
         if subj and pred and subj.split(':')[0] and obj.split(':')[0]:
-
+            source_record_url = kgInfoUrl + line['id']
             prefix = obj.split(':')[0].replace(".","_")
             disease = {
                 prefix.lower(): obj,
@@ -46,7 +46,7 @@ def load_content(data_folder):
                     {
                         "resource_id": attribute_source,
                         "resource_role": "primary_knowledge_source",
-                        "source_record_urls": [ kgInfoUrl + line['id'] ]
+                        "source_record_urls": [ source_record_url ]
                     },
                     {
                         "resource_id": dailymed,
@@ -63,7 +63,7 @@ def load_content(data_folder):
                     {
                         "resource_id": attribute_source,
                         "resource_role": "aggregator_knowledge_source",
-                        "source_record_urls": [ kgInfoUrl + line['id'] ]
+                        "source_record_urls": [ source_record_url ]
                     },
                     {
                         "resource_id": faers,
@@ -80,7 +80,8 @@ def load_content(data_folder):
                 "status": status,
                 "disease": disease,
                 "edge_id": line['id'],
-                "sources": edge_sources
+                #"sources": edge_sources
+                "source_record_urls": [ source_record_url ]
             }
             
             yield subj, data
