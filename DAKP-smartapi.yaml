@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   description: TRAPI 1.5 endpoint for the Multiomics Drug Approvals KP, an NCATS Biomedical Translator Knowledge Provider
-  version: "0.2"
+  version: 0.2.0
   title: Drug Approvals KP - TRAPI 1.5.0
   contact:
     email: gglusman@systemsbiology.org
