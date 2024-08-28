@@ -3,7 +3,6 @@ import os
 import json
 
 attribute_source = "infores:multiomics-drugapprovals"
-attribute_data_source = "infores:isb-wellness"
 faers = "infores:faers"
 dailymed = "infores:dailymed"
 kgInfoUrl = "https://db.systemsbiology.net/gestalt/cgi-pub/KGinfo.pl?id="
