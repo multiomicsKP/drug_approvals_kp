@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import json
 
-attribute_source = "infores:biothings-multiomics-drugapprovals"
+attribute_source = "infores:multiomics-drugapprovals"
 attribute_data_source = "infores:isb-wellness"
 faers = "infores:faers"
 dailymed = "infores:dailymed"
