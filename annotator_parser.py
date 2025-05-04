@@ -8,8 +8,8 @@ dailymed = "infores:dailymed"
 kgInfoUrl = "https://db.systemsbiology.net/gestalt/cgi-pub/KGinfo.pl?id="
 
 def load_content(data_folder):
-    edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.3.7.tsv")
-    nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.3.7.tsv")
+    edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.3.8.tsv")
+    nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.3.8.tsv")
 
     nodes_data = pd.read_csv(nodes_file_path, sep='\t')
     id_name_mapping = {}
