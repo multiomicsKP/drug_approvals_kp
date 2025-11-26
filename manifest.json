@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.4.2",
     "__metadata__": {
         "license_url": "",
         "license": "CC BY 4.0",
@@ -7,8 +7,8 @@
     },
     "dumper": {
         "data_url": [
-            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_nodes_v0.4.0.tsv",
-            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_edges_v0.4.0.tsv"
+            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_nodes_v0.4.2.tsv",
+            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_edges_v0.4.2.tsv"
         ],
         "uncompress": false,
         "release": "version:get_release"
