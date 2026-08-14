@@ -7,8 +7,8 @@
     },
     "dumper": {
         "data_url": [
-            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_nodes_current.tsv",
-            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_edges_current.tsv"
+            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_nodes_current.jsonl.gz",
+            "https://db.systemsbiology.net/gestalt/KG/drug_approvals_kg_edges_current.jsonl.gz"
         ],
         "uncompress": false,
         "release": "version:get_release"

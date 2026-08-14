@@ -1,92 +1,59 @@
-import pandas as pd
+import glob
+import gzip
 import os
 import json
 
-attribute_source = "infores:multiomics-drugapprovals"
-faers = "infores:faers"
-dailymed = "infores:dailymed"
 kgInfoUrl = "https://db.systemsbiology.net/gestalt/cgi-pub/KGinfo.pl?id="
 
+def find_file(data_folder, kind):
+    matches = sorted(glob.glob(os.path.join(data_folder, f"drug_approvals_kg_{kind}_current.jsonl*")))
+    if not matches:
+        raise FileNotFoundError(f"No drug_approvals_kg_{kind}*.jsonl* file in {data_folder}")
+    return matches[-1]
+
+def open_file(path):
+    return gzip.open(path, 'rt') if path.endswith('.gz') else open(path)
+
 def load_content(data_folder):
-    edges_file_path = os.path.join(data_folder, "drug_approvals_kg_edges_v0.5.3.tsv.gz")
-    nodes_file_path = os.path.join(data_folder, "drug_approvals_kg_nodes_v0.5.3.tsv.gz")
+    edges_file_path = find_file(data_folder, "edges")
+    nodes_file_path = find_file(data_folder, "nodes")
 
-    nodes_data = pd.read_csv(nodes_file_path, sep='\t')
     id_name_mapping = {}
-    id_type_mapping = {}
-    for index,row in nodes_data.iterrows():
-        id_name_mapping[row["id"]] = row["name"]
-        id_type_mapping[row["id"]] = row["category"]
+    with open_file(nodes_file_path) as nodes_data:
+        for row in nodes_data:
+            row = json.loads(row)
+            id_name_mapping[row["id"]] = row["name"]
 
-    edges_data = pd.read_csv(edges_file_path, sep='\t')
-    for index,line in edges_data.iterrows():
-        subj = line['subject']
-        pred = line['predicate']
-        obj  = line['object']
-        if subj and pred and subj.split(':')[0] and obj.split(':')[0]:
-            source_record_url = kgInfoUrl + line['id']
-            prefix = obj.split(':')[0].replace(".","_")
-            disease = {
-                prefix.lower(): obj,
-                "name": id_name_mapping[obj],
-            }
+    with open_file(edges_file_path) as edges_data:
+        for line in edges_data:
+            line = json.loads(line)
+            subj = line['subject']
+            pred = line['predicate']
+            obj  = line['object']
+            if subj and pred and subj.split(':')[0] and obj.split(':')[0]:
+                source_record_url = kgInfoUrl + line['id']
+                prefix = obj.split(':')[0].replace(".","_")
+                disease = {
+                    prefix.lower(): obj,
+                    "name": id_name_mapping.get(obj) or line.get("object_name"),
+                }
 
-            # properties for predicate/association
-            edge_attributes = []
+                # Yield subject, predicate, and object properties
+                data = {
+                    "disease": disease,
+                    "edge_id": line['id'],
+                    "source_record_urls": [ source_record_url ]
+                }
 
-            # approval status
-            status = ""
-            
-            # sources
-            edge_sources = []
-            if pred == 'biolink:treats':
-                status = "approved_for_condition"
-                edge_sources = [
-                    {
-                        "resource_id": attribute_source,
-                        "resource_role": "primary_knowledge_source",
-                        "source_record_urls": [ source_record_url ]
-                    },
-                    {
-                        "resource_id": dailymed,
-                        "resource_role": "supporting_data_source"
-                    },
-                    {
-                        "resource_id": faers,
-                        "resource_role": "supporting_data_source"
-                    }
-                ]
+                # approval status, as asserted by the KG; absent for most contraindications
+                status = line.get('clinical_approval_status')
+                if status is not None:
+                    data["status"] = status
+
+                yield subj, data
+
             else:
-                status = "not_approved_for_condition"
-                edge_sources = [
-                    {
-                        "resource_id": attribute_source,
-                        "resource_role": "aggregator_knowledge_source",
-                        "source_record_urls": [ source_record_url ]
-                    },
-                    {
-                        "resource_id": faers,
-                        "resource_role": "primary_knowledge_source"
-                    },
-                    {
-                        "resource_id": dailymed,
-                        "resource_role": "supporting_data_source"
-                    }
-                ]
-
-            # Yield subject, predicate, and object properties
-            data = {
-                "status": status,
-                "disease": disease,
-                "edge_id": line['id'],
-                #"sources": edge_sources
-                "source_record_urls": [ source_record_url ]
-            }
-            
-            yield subj, data
-
-        else:
-            print(f"Cannot find prefix for {line} !")
+                print(f"Cannot find prefix for {line} !")
 
 def load_data(data_folder):
     output = {}
