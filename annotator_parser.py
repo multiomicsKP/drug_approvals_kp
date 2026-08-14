@@ -25,12 +25,24 @@ def load_content(data_folder):
             id_name_mapping[row["id"]] = row["name"]
 
     with open_file(edges_file_path) as edges_data:
+        treats_pairs = {
+            (edge['subject'], edge['object'])
+            for edge in (json.loads(line) for line in edges_data)
+            if edge['predicate'] == 'biolink:treats'
+        }
+
+    with open_file(edges_file_path) as edges_data:
         for line in edges_data:
             line = json.loads(line)
             subj = line['subject']
             pred = line['predicate']
             obj  = line['object']
             if subj and pred and subj.split(':')[0] and obj.split(':')[0]:
+                # a treats edge supersedes the applied_to_treat edge for the same pair,
+                # which would otherwise show up as a second, unexplained annotation
+                if pred == 'biolink:applied_to_treat' and (subj, obj) in treats_pairs:
+                    continue
+
                 source_record_url = kgInfoUrl + line['id']
                 prefix = obj.split(':')[0].replace(".","_")
                 disease = {
